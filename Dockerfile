@@ -1,5 +1,5 @@
-# Usa un sistema operativo leggero con Java 17 già installato
-FROM openjdk:17-slim
+# Usa Eclipse Temurin, il nuovo standard ufficiale e leggero per Java 17
+FROM eclipse-temurin:17-jdk-alpine
 
 # Crea una cartella di lavoro dentro il server cloud
 WORKDIR /app
