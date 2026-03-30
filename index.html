@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestione Cassa</title>
+    <style>
+        /* Font moderno e sfondo a gradiente */
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            text-align: center; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex; 
+            justify-content: center;
+            align-items: flex-start; 
+            padding-top: 8vh; 
+            min-height: 100vh; 
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* La "Card" bianca centrale */
+        .container { 
+            background: white; 
+            padding: 35px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 380px; 
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        h1 { 
+            font-size: 26px; 
+            margin-top: 0; 
+            margin-bottom: 25px;
+            color: #2c3e50; 
+            font-weight: 700;
+        }
+
+        /* Stile dei campi di input */
+        input[type="text"] { 
+            padding: 16px; 
+            width: 100%; 
+            margin-bottom: 15px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            background-color: #f8f9fa;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background-color: #fff;
+        }
+
+        /* Pulsante con gradiente e animazione */
+        button { 
+            padding: 16px; 
+            width: 100%; 
+            cursor: pointer; 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #messaggio { margin-top: 20px; font-weight: 600; min-height: 20px; font-size: 15px; }
+        .successo { color: #2ecc71; }
+        .errore { color: #e74c3c; }
+        
+        /* Nuova grafica per il riquadro Totali */
+        .stats-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #eef2f5;
+            text-align: left;
+            font-size: 16px;
+            color: #495057;
+            animation: fadeIn 0.5s ease; /* Effetto comparsa dolce */
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eef2f5;
+        }
+        
+        .stat-row:last-child { border-bottom: none; }
+        
+        .stat-row strong { 
+            color: #2c3e50; 
+            font-size: 18px; 
+        }
+
+        .highlight-total {
+            color: #4a90e2 !important;
+            font-size: 22px !important;
+        }
+
+        /* Animazione per la comparsa delle statistiche */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💸 Gestione Cassa</h1>
+        
+        <input type="text" id="nomeInput" placeholder="Nome (es. Marco)">
+        <input type="text" id="soldiInput" placeholder="Importo (es. 10,50)">
+        
+        <button onclick="salvaInDB()">Aggiungi alla Cassa</button>
+
+        <div id="messaggio"></div>
+
+        <div class="stats-box" id="statsBox" style="display: none;">
+            <div class="stat-row">
+                <span>Partecipanti:</span>
+                <strong id="valPersone">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Media a persona:</span>
+                <strong id="valMedia">0.00 €</strong>
+            </div>
+            <div class="stat-row" style="margin-top: 5px;">
+                <span><strong>Totale cassa:</strong></span>
+                <strong class="highlight-total" id="valTotale">0.00 €</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = calcolaStatistiche;
+
+        function salvaInDB() {
+            let nomeGrezzo = document.getElementById('nomeInput').value.trim();
+            const soldiRaw = document.getElementById('soldiInput').value.trim();
+            const messaggioDiv = document.getElementById('messaggio');
+
+            messaggioDiv.innerText = "";
+            messaggioDiv.className = "";
+
+            if (!nomeGrezzo) return mostraMessaggio("Errore: Inserisci un nome.", true);
+            if (!isNaN(nomeGrezzo)) return mostraMessaggio("Errore: Il nome non può essere un numero.", true);
+            if (!soldiRaw) return mostraMessaggio("Errore: Inserisci un importo.", true);
+
+            let nome = nomeGrezzo.charAt(0).toUpperCase() + nomeGrezzo.slice(1).toLowerCase();
+
+            let soldiNormalizzati = soldiRaw.replace(',', '.');
+            if (isNaN(soldiNormalizzati) || soldiNormalizzati === "") {
+                return mostraMessaggio("Errore: Importo non valido.", true);
+            }
+
+            let soldiFormattati = Number(soldiNormalizzati).toFixed(2);
+            const testoDaSalvare = nome + ":" + soldiFormattati;
+
+            fetch('/scrivi', {
+                method: 'POST',
+                body: testoDaSalvare
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nomeInput').value = '';
+                document.getElementById('soldiInput').value = '';
+                mostraMessaggio("Aggiornato con successo!", false);
+                calcolaStatistiche();
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+                mostraMessaggio("Errore di comunicazione.", true);
+            });
+        }
+
+        function calcolaStatistiche() {
+            fetch('/leggi')
+            .then(response => response.text())
+            .then(data => {
+                if (!data.trim()) return; 
+
+                const righe = data.trim().split('\n');
+                let totale = 0;
+                let persone = 0;
+
+                righe.forEach(riga => {
+                    if(riga.includes(':')) {
+                        const parti = riga.split(':');
+                        const importo = parseFloat(parti[1]);
+                        if(!isNaN(importo)) {
+                            totale += importo;
+                            persone++;
+                        }
+                    }
+                });
+
+                if (persone > 0) {
+                    const media = totale / persone;
+                    
+                    document.getElementById('valPersone').innerText = persone;
+                    document.getElementById('valTotale').innerText = totale.toFixed(2) + " €";
+                    document.getElementById('valMedia').innerText = media.toFixed(2) + " €";
+                    
+                    document.getElementById('statsBox').style.display = "block"; 
+                }
+            })
+            .catch(error => console.error('Errore lettura db:', error));
+        }
+
+        function mostraMessaggio(testo, isErrore) {
+            const div = document.getElementById('messaggio');
+            div.innerText = testo;
+            div.className = isErrore ? "errore" : "successo";
+        }
+    </script>
+</body>
+</html>
