@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestione Cassa</title>
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
     <style>
         /* Stili Generali */
         body { 
@@ -159,12 +162,11 @@
 
         /* Sezione Segreta */
         .area-segreta {
-            margin-top: 20px;
-            padding: 20px;
-            border: 2px dashed #cbd5e1;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #eef2f5;
             border-radius: 10px;
-            color: #94a3b8;
-            font-style: italic;
+            background: #fff;
         }
 
         @keyframes fadeIn {
@@ -223,9 +225,11 @@
         </div>
 
         <div id="contenutoRiservato" style="display: none;">
-            <h3 style="color: #2ecc71;">Accesso Effettuato! ✅</h3>
+            <h3 style="color: #2ecc71; margin-top: 0;">Accesso Effettuato! ✅</h3>
+            
             <div class="area-segreta">
-                🚀 <i>Qui andrà la nuova parte del sito a cui penseremo dopo...</i>
+                <h4 style="margin: 10px 0; color: #2c3e50;">Percentuali di Versamento</h4>
+                <div id="piechart_3d" style="width: 100%; height: 250px;"></div>
             </div>
         </div>
 
@@ -233,6 +237,9 @@
     </div>
 
     <script>
+        // Carica la libreria di Google Charts in background
+        google.charts.load("current", {packages:["corechart"]});
+
         // Carica la tabella all'avvio
         window.onload = calcolaStatistiche;
 
@@ -269,12 +276,58 @@
             const msg = document.getElementById('loginMsg');
 
             if (user === UTENTE_CORRETTO && pass === PASSWORD_CORRETTA) {
+                // Mostra i div NASCOSTI prima di disegnare il grafico (se no si schiaccia)
                 document.getElementById('formLogin').style.display = 'none';
                 document.getElementById('contenutoRiservato').style.display = 'block';
+                
+                // Disegna il grafico!
+                disegnaGrafico();
             } else {
                 msg.innerText = "Credenziali errate. Riprova.";
                 msg.className = "errore";
             }
+        }
+
+        // --- FUNZIONE PER IL GRAFICO A TORTA ---
+        function disegnaGrafico() {
+            fetch('/leggi')
+            .then(response => response.text())
+            .then(data => {
+                const righe = data.trim().split('\n');
+                let datiPerGrafico = [['Nome', 'Contributo']]; // Intestazione obbligatoria
+                let ciSonoDati = false;
+
+                if (data.trim()) {
+                    righe.forEach(riga => {
+                        if(riga.includes(':')) {
+                            const parti = riga.split(':');
+                            const nome = parti[0];
+                            const importo = parseFloat(parti[1]);
+                            
+                            if(!isNaN(importo)) {
+                                datiPerGrafico.push([nome, importo]);
+                                ciSonoDati = true;
+                            }
+                        }
+                    });
+                }
+
+                if (ciSonoDati) {
+                    var dataTable = google.visualization.arrayToDataTable(datiPerGrafico);
+                    var options = {
+                        is3D: true, // Questo rende il grafico "di profilo"!
+                        backgroundColor: 'transparent',
+                        legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 13 } },
+                        chartArea: { width: '90%', height: '70%' }
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+                    chart.draw(dataTable, options);
+                } else {
+                    document.getElementById('piechart_3d').innerHTML = "<p style='padding-top: 100px; color: #95a5a6;'>Nessun versamento registrato.</p>";
+                }
+            })
+            .catch(error => console.error('Errore lettura db per grafico:', error));
         }
 
         // --- FUNZIONI DELLA CASSA ---
@@ -340,7 +393,6 @@
                     });
                 }
 
-                // Se non c'è ancora nessuno, mostra una scritta carina
                 if (persone === 0) {
                     righeTabellaHtml = "<tr><td colspan='2' style='text-align: center; color: #95a5a6;'>Nessun dato presente</td></tr>";
                 }
