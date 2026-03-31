@@ -13,7 +13,7 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0; 
             padding: 20px; 
-            background-color: #e8ecf1; /* Sfondo monocromatico elegante */
+            background-color: #e8ecf1; 
             display: flex; 
             justify-content: center;
             align-items: flex-start; 
@@ -106,7 +106,7 @@
            ========================================================= */
         #dashboardSection {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px; /* Allargato per dare più spazio al grafico */
             animation: fadeIn 0.5s ease;
         }
 
@@ -123,13 +123,14 @@
         
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1.5fr; /* 1 parte a sinistra, 1.5 a destra */
-            gap: 30px;
+            /* Tabella a sinistra (1 parte), Grafico a destra (2.5 parti) -> Grafico MOLTO più grande */
+            grid-template-columns: 1fr 2.5fr; 
+            gap: 40px;
             align-items: start;
         }
 
         /* Responsive: su cellulare impila tutto in una colonna */
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             .dashboard-grid { grid-template-columns: 1fr; }
             .dashboard-header { justify-content: center; text-align: center; }
         }
@@ -158,18 +159,18 @@
 
         /* Colonna Destra: Grafico */
         .col-destra {
-            background: transparent; /* Nessun label bianco visibile dietro */
+            background: transparent; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        /* Ingrandito il grafico */
+        /* Grafico Ingrandito */
         #piechart_3d {
             width: 100%;
-            height: 450px; 
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+            height: 550px; /* Aumentata l'altezza */
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); /* Ombra più marcata per l'effetto 3D */
         }
 
         @keyframes fadeIn {
@@ -240,7 +241,7 @@
             </div>
 
             <div class="col-destra">
-                <h3 style="color: #2c3e50; margin-bottom: 0;">Distribuzione Versamenti</h3>
+                <h2 style="color: #2c3e50; margin-bottom: 10px; text-align: center;">Distribuzione Versamenti</h2>
                 <div id="piechart_3d"></div>
             </div>
 
@@ -278,7 +279,7 @@
             document.getElementById('appSection').style.display = 'block';
             document.getElementById('btnLogin').style.display = 'block';
             
-            document.getElementById('messaggio').innerText = ''; // Pulisce messaggi vecchi
+            document.getElementById('messaggio').innerText = ''; 
         }
 
         function eseguiLogin() {
@@ -287,11 +288,9 @@
             const msg = document.getElementById('loginMsg');
 
             if (user === UTENTE_CORRETTO && pass === PASSWORD_CORRETTA) {
-                // Nasconde il login e mostra la dashboard
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
                 
-                // Carica e disegna i dati!
                 caricaDatiDashboard();
             } else {
                 msg.innerText = "Credenziali errate. Riprova.";
@@ -330,7 +329,6 @@
             .then(data => {
                 document.getElementById('nomeInput').value = '';
                 document.getElementById('soldiInput').value = '';
-                // Mostra solo il messaggio di successo, nessuna tabella qui!
                 mostraMessaggio("Versamento registrato con successo! ✅", false);
             })
             .catch(error => {
@@ -345,12 +343,10 @@
             .then(data => {
                 const righe = data.trim().split('\n');
                 
-                // Variabili per la Tabella
                 let totale = 0;
                 let persone = 0;
                 let righeTabellaHtml = "";
                 
-                // Variabili per il Grafico
                 let datiPerGrafico = [['Nome', 'Contributo']]; 
                 let ciSonoDati = false;
 
@@ -362,12 +358,10 @@
                             const importo = parseFloat(parti[1]);
                             
                             if(!isNaN(importo)) {
-                                // Aggiorna dati Tabella
                                 totale += importo;
                                 persone++;
                                 righeTabellaHtml += `<tr><td><strong>${nome}</strong></td><td>${importo.toFixed(2)} €</td></tr>`;
                                 
-                                // Aggiorna dati Grafico
                                 datiPerGrafico.push([nome, importo]);
                                 ciSonoDati = true;
                             }
@@ -389,10 +383,13 @@
                     var dataTable = google.visualization.arrayToDataTable(datiPerGrafico);
                     var options = {
                         is3D: true,
-                        backgroundColor: 'transparent', // Sfondo monocromatico/trasparente
-                        legend: { position: 'right', textStyle: { color: '#333', fontSize: 14 } },
-                        chartArea: { width: '100%', height: '85%' }, // Occupa molto più spazio
-                        pieSliceText: 'value' // Mostra il valore sulla fetta invece della percentuale
+                        backgroundColor: 'transparent', 
+                        legend: { 
+                            position: 'right', 
+                            textStyle: { color: '#333', fontSize: 16 } // Legenda più grande
+                        },
+                        chartArea: { width: '95%', height: '95%' }, // Occupa quasi tutto lo spazio disponibile
+                        pieSliceText: 'value' 
                     };
 
                     var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
@@ -404,7 +401,6 @@
             .catch(error => console.error('Errore lettura db per dashboard:', error));
         }
 
-        // --- UTILITY MESSAGGI ---
         function mostraMessaggio(testo, isErrore) {
             const div = document.getElementById('messaggio');
             div.innerText = testo;
