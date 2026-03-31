@@ -8,13 +8,12 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     
     <style>
-        /* Stili Generali */
+        /* Stili Generali e Sfondo Monocromatico */
         body { 
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            text-align: center; 
             margin: 0; 
             padding: 20px; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-color: #e8ecf1; /* Sfondo monocromatico elegante */
             display: flex; 
             justify-content: center;
             align-items: flex-start; 
@@ -32,20 +31,25 @@
             width: auto;
             padding: 10px 20px;
             background: #2c3e50;
+            color: white;
             font-size: 14px;
             border-radius: 8px;
+            border: none;
+            cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         #btnLogin:hover { background: #1a252f; }
 
+        /* Contenitore per le schermate centrali (Input e Login) */
         .container { 
             background: white; 
-            padding: 35px 30px; 
+            padding: 40px 30px; 
             border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             width: 100%; 
-            max-width: 450px; 
+            max-width: 400px; 
             box-sizing: border-box;
+            text-align: center;
             animation: fadeIn 0.5s ease;
         }
 
@@ -69,104 +73,103 @@
             background-color: #f8f9fa;
             transition: all 0.3s ease;
         }
-        
-        input:focus {
-            outline: none;
-            border-color: #4a90e2;
-            background-color: #fff;
-        }
+        input:focus { outline: none; border-color: #4a90e2; background-color: #fff; }
 
         /* Pulsanti */
         button { 
             padding: 16px; 
             width: 100%; 
             cursor: pointer; 
-            background: linear-gradient(135deg, #4a90e2 0%, #0072ff 100%);
             color: white; 
             border: none; 
             border-radius: 10px; 
             font-size: 18px; 
             font-weight: 700; 
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
             transition: all 0.2s ease;
             margin-bottom: 10px;
         }
-        
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4); }
+        button:hover { transform: translateY(-2px); }
         button:active { transform: translateY(1px); }
 
-        .btn-green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
-        }
-        .btn-green:hover { box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4); }
-
-        .btn-gray {
-            background: #95a5a6;
-            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
-            margin-top: 15px;
-        }
-        .btn-gray:hover { box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4); background: #7f8c8d;}
+        .btn-blue { background: linear-gradient(135deg, #4a90e2 0%, #0072ff 100%); box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3); }
+        .btn-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3); }
+        .btn-gray { background: #95a5a6; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3); margin-top: 15px; }
+        .btn-gray:hover { background: #7f8c8d; }
 
         /* Messaggi */
-        #messaggio, #loginMsg { margin-top: 5px; font-weight: 600; min-height: 20px; font-size: 15px; margin-bottom: 15px;}
+        #messaggio, #loginMsg { margin-top: 15px; font-weight: 600; min-height: 20px; font-size: 16px; }
         .errore { color: #e74c3c; }
         .successo { color: #2ecc71; }
         
-        /* Tabella */
-        .table-container {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #eef2f5;
-        }
-
-        table {
+        /* =========================================================
+           LAYOUT DASHBOARD RISERVATA (GRIGLIA)
+           ========================================================= */
+        #dashboardSection {
             width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            text-align: left;
+            max-width: 1100px;
+            animation: fadeIn 0.5s ease;
         }
 
-        th {
-            background-color: #f8f9fa;
-            color: #2c3e50;
-            padding: 12px 15px;
-            font-weight: 700;
-            border-bottom: 2px solid #eef2f5;
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eef2f5;
-            color: #495057;
+        .dashboard-header h1 { margin: 0; }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr; /* 1 parte a sinistra, 1.5 a destra */
+            gap: 30px;
+            align-items: start;
         }
 
+        /* Responsive: su cellulare impila tutto in una colonna */
+        @media (max-width: 800px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .dashboard-header { justify-content: center; text-align: center; }
+        }
+
+        /* Colonna Sinistra: Tabella e Statistiche */
+        .col-sinistra {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Tabella */
+        .table-container { border-radius: 10px; overflow: hidden; border: 1px solid #eef2f5; }
+        table { width: 100%; border-collapse: collapse; background: #fff; text-align: left; }
+        th { background-color: #f8f9fa; color: #2c3e50; padding: 15px; font-weight: 700; border-bottom: 2px solid #eef2f5; }
+        td { padding: 15px; border-bottom: 1px solid #eef2f5; color: #495057; }
         tr:last-child td { border-bottom: none; }
         tr:nth-child(even) { background-color: #fdfdfd; }
 
-        /* Riquadro Totali */
-        .stats-box {
-            margin-top: 20px;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            text-align: left;
-            border: 1px solid #eef2f5;
-        }
-
-        .stat-row {
-            display: flex; justify-content: space-between; padding: 5px 0;
-        }
+        /* Totali */
+        .stats-box { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: left; border: 1px solid #eef2f5; }
+        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; }
         .stat-row strong { color: #2c3e50; font-size: 18px; }
-        .highlight-total { color: #4a90e2 !important; font-size: 22px !important; }
+        .highlight-total { color: #4a90e2 !important; font-size: 24px !important; }
 
-        /* Sezione Segreta */
-        .area-segreta {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #eef2f5;
-            border-radius: 10px;
-            background: #fff;
+        /* Colonna Destra: Grafico */
+        .col-destra {
+            background: transparent; /* Nessun label bianco visibile dietro */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ingrandito il grafico */
+        #piechart_3d {
+            width: 100%;
+            height: 450px; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
         }
 
         @keyframes fadeIn {
@@ -177,71 +180,76 @@
 </head>
 <body>
 
-    <button id="btnLogin" onclick="mostraAreaLogin()">🔒 Login</button>
+    <button id="btnLogin" onclick="mostraLogin()">🔒 Accesso Admin</button>
 
     <div id="appSection" class="container">
-        <h1>💸 Gestione Cassa</h1>
+        <h1>💸 Cassa di Gruppo</h1>
+        <p style="color: #7f8c8d; margin-bottom: 25px;">Inserisci il tuo nome e l'importo versato.</p>
         
         <input type="text" id="nomeInput" placeholder="Nome (es. Marco)">
         <input type="text" id="soldiInput" placeholder="Importo (es. 10,50)">
         <button class="btn-green" onclick="salvaInDB()">Aggiungi alla Cassa</button>
+        
         <div id="messaggio"></div>
-
-        <div id="datiCassa">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Importo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabellaCorpo">
-                        </tbody>
-                </table>
-            </div>
-
-            <div class="stats-box">
-                <div class="stat-row">
-                    <span>Media a persona:</span>
-                    <strong id="valMedia">0.00 €</strong>
-                </div>
-                <div class="stat-row" style="margin-top: 5px;">
-                    <span><strong>Totale cassa:</strong></span>
-                    <strong class="highlight-total" id="valTotale">0.00 €</strong>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div id="loginSection" class="container" style="display: none;">
         <h1>🔒 Area Riservata</h1>
+        <p style="color: #7f8c8d; margin-bottom: 25px;">Inserisci le credenziali per vedere i dati.</p>
         
-        <div id="formLogin">
-            <input type="text" id="userInput" placeholder="Nome Utente">
-            <input type="password" id="passInput" placeholder="Password">
-            <button onclick="eseguiLogin()">Accedi</button>
-            <div id="loginMsg"></div>
+        <input type="text" id="userInput" placeholder="Nome Utente">
+        <input type="password" id="passInput" placeholder="Password">
+        <button class="btn-blue" onclick="eseguiLogin()">Accedi ai Dati</button>
+        <div id="loginMsg"></div>
+        
+        <button class="btn-gray" onclick="tornaAllaCassa()">Annulla</button>
+    </div>
+
+    <div id="dashboardSection" style="display: none;">
+        <div class="dashboard-header">
+            <h1>📊 Dashboard Finanziaria</h1>
+            <button class="btn-gray" style="width: auto; padding: 10px 20px; margin: 0;" onclick="tornaAllaCassa()">⬅ Esci dall'Area</button>
         </div>
 
-        <div id="contenutoRiservato" style="display: none;">
-            <h3 style="color: #2ecc71; margin-top: 0;">Accesso Effettuato! ✅</h3>
+        <div class="dashboard-grid">
             
-            <div class="area-segreta">
-                <h4 style="margin: 10px 0; color: #2c3e50;">Percentuali di Versamento</h4>
-                <div id="piechart_3d" style="width: 100%; height: 250px;"></div>
-            </div>
-        </div>
+            <div class="col-sinistra">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Importo Versato</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabellaCorpo">
+                            </tbody>
+                    </table>
+                </div>
 
-        <button class="btn-gray" onclick="tornaAllaCassa()">Torna alla Cassa</button>
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span>Media a persona:</span>
+                        <strong id="valMedia">0.00 €</strong>
+                    </div>
+                    <div class="stat-row" style="margin-top: 5px; border-top: 1px solid #e1e8ed; padding-top: 15px;">
+                        <span><strong>TOTALE CASSA:</strong></span>
+                        <strong class="highlight-total" id="valTotale">0.00 €</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-destra">
+                <h3 style="color: #2c3e50; margin-bottom: 0;">Distribuzione Versamenti</h3>
+                <div id="piechart_3d"></div>
+            </div>
+
+        </div>
     </div>
 
     <script>
         // Carica la libreria di Google Charts in background
         google.charts.load("current", {packages:["corechart"]});
-
-        // Carica la tabella all'avvio
-        window.onload = calcolaStatistiche;
 
         // ==========================================
         // 🛠️ MODIFICA QUI LE TUE CREDENZIALI
@@ -250,10 +258,12 @@
         const PASSWORD_CORRETTA = "CCF26!";
         // ==========================================
 
-        // --- FUNZIONI DI NAVIGAZIONE E LOGIN ---
-        function mostraAreaLogin() {
+        // --- NAVIGAZIONE SCHERMATE ---
+        function mostraLogin() {
             document.getElementById('appSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'none';
             document.getElementById('btnLogin').style.display = 'none';
+            
             document.getElementById('loginSection').style.display = 'block';
             
             document.getElementById('userInput').value = '';
@@ -263,11 +273,12 @@
 
         function tornaAllaCassa() {
             document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'none';
+            
             document.getElementById('appSection').style.display = 'block';
             document.getElementById('btnLogin').style.display = 'block';
             
-            document.getElementById('formLogin').style.display = 'block';
-            document.getElementById('contenutoRiservato').style.display = 'none';
+            document.getElementById('messaggio').innerText = ''; // Pulisce messaggi vecchi
         }
 
         function eseguiLogin() {
@@ -276,61 +287,19 @@
             const msg = document.getElementById('loginMsg');
 
             if (user === UTENTE_CORRETTO && pass === PASSWORD_CORRETTA) {
-                // Mostra i div NASCOSTI prima di disegnare il grafico (se no si schiaccia)
-                document.getElementById('formLogin').style.display = 'none';
-                document.getElementById('contenutoRiservato').style.display = 'block';
+                // Nasconde il login e mostra la dashboard
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
                 
-                // Disegna il grafico!
-                disegnaGrafico();
+                // Carica e disegna i dati!
+                caricaDatiDashboard();
             } else {
                 msg.innerText = "Credenziali errate. Riprova.";
                 msg.className = "errore";
             }
         }
 
-        // --- FUNZIONE PER IL GRAFICO A TORTA ---
-        function disegnaGrafico() {
-            fetch('/leggi')
-            .then(response => response.text())
-            .then(data => {
-                const righe = data.trim().split('\n');
-                let datiPerGrafico = [['Nome', 'Contributo']]; // Intestazione obbligatoria
-                let ciSonoDati = false;
-
-                if (data.trim()) {
-                    righe.forEach(riga => {
-                        if(riga.includes(':')) {
-                            const parti = riga.split(':');
-                            const nome = parti[0];
-                            const importo = parseFloat(parti[1]);
-                            
-                            if(!isNaN(importo)) {
-                                datiPerGrafico.push([nome, importo]);
-                                ciSonoDati = true;
-                            }
-                        }
-                    });
-                }
-
-                if (ciSonoDati) {
-                    var dataTable = google.visualization.arrayToDataTable(datiPerGrafico);
-                    var options = {
-                        is3D: true, // Questo rende il grafico "di profilo"!
-                        backgroundColor: 'transparent',
-                        legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 13 } },
-                        chartArea: { width: '90%', height: '70%' }
-                    };
-
-                    var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
-                    chart.draw(dataTable, options);
-                } else {
-                    document.getElementById('piechart_3d').innerHTML = "<p style='padding-top: 100px; color: #95a5a6;'>Nessun versamento registrato.</p>";
-                }
-            })
-            .catch(error => console.error('Errore lettura db per grafico:', error));
-        }
-
-        // --- FUNZIONI DELLA CASSA ---
+        // --- SALVATAGGIO DATI (AREA PUBBLICA) ---
         function salvaInDB() {
             let nomeGrezzo = document.getElementById('nomeInput').value.trim();
             const soldiRaw = document.getElementById('soldiInput').value.trim();
@@ -361,21 +330,29 @@
             .then(data => {
                 document.getElementById('nomeInput').value = '';
                 document.getElementById('soldiInput').value = '';
-                calcolaStatistiche();
+                // Mostra solo il messaggio di successo, nessuna tabella qui!
+                mostraMessaggio("Versamento registrato con successo! ✅", false);
             })
             .catch(error => {
                 mostraMessaggio("Errore di comunicazione col server.", true);
             });
         }
 
-        function calcolaStatistiche() {
+        // --- ELABORAZIONE DATI (AREA RISERVATA) ---
+        function caricaDatiDashboard() {
             fetch('/leggi')
             .then(response => response.text())
             .then(data => {
                 const righe = data.trim().split('\n');
+                
+                // Variabili per la Tabella
                 let totale = 0;
                 let persone = 0;
                 let righeTabellaHtml = "";
+                
+                // Variabili per il Grafico
+                let datiPerGrafico = [['Nome', 'Contributo']]; 
+                let ciSonoDati = false;
 
                 if (data.trim()) {
                     righe.forEach(riga => {
@@ -385,27 +362,49 @@
                             const importo = parseFloat(parti[1]);
                             
                             if(!isNaN(importo)) {
+                                // Aggiorna dati Tabella
                                 totale += importo;
                                 persone++;
-                                righeTabellaHtml += `<tr><td>${nome}</td><td>${importo.toFixed(2)} €</td></tr>`;
+                                righeTabellaHtml += `<tr><td><strong>${nome}</strong></td><td>${importo.toFixed(2)} €</td></tr>`;
+                                
+                                // Aggiorna dati Grafico
+                                datiPerGrafico.push([nome, importo]);
+                                ciSonoDati = true;
                             }
                         }
                     });
                 }
 
+                // 1. COMPILA LA TABELLA
                 if (persone === 0) {
                     righeTabellaHtml = "<tr><td colspan='2' style='text-align: center; color: #95a5a6;'>Nessun dato presente</td></tr>";
                 }
-
                 const media = persone > 0 ? (totale / persone) : 0;
-                
                 document.getElementById('tabellaCorpo').innerHTML = righeTabellaHtml;
                 document.getElementById('valTotale').innerText = totale.toFixed(2) + " €";
                 document.getElementById('valMedia').innerText = media.toFixed(2) + " €";
+
+                // 2. DISEGNA IL GRAFICO INGRANDITO
+                if (ciSonoDati) {
+                    var dataTable = google.visualization.arrayToDataTable(datiPerGrafico);
+                    var options = {
+                        is3D: true,
+                        backgroundColor: 'transparent', // Sfondo monocromatico/trasparente
+                        legend: { position: 'right', textStyle: { color: '#333', fontSize: 14 } },
+                        chartArea: { width: '100%', height: '85%' }, // Occupa molto più spazio
+                        pieSliceText: 'value' // Mostra il valore sulla fetta invece della percentuale
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+                    chart.draw(dataTable, options);
+                } else {
+                    document.getElementById('piechart_3d').innerHTML = "<p style='padding-top: 150px; color: #95a5a6;'>Nessun versamento registrato per il grafico.</p>";
+                }
             })
-            .catch(error => console.error('Errore lettura db:', error));
+            .catch(error => console.error('Errore lettura db per dashboard:', error));
         }
 
+        // --- UTILITY MESSAGGI ---
         function mostraMessaggio(testo, isErrore) {
             const div = document.getElementById('messaggio');
             div.innerText = testo;
