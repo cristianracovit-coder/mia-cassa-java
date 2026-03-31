@@ -96,6 +96,33 @@ public class main {
             }
         });
 
+        // 4. Svuota il contenuto del file db.txt (mantenendo il file)
+        server.createContext("/svuota", new HttpHandler() {
+            public void handle(HttpExchange t) throws IOException {
+                if ("POST".equals(t.getRequestMethod())) {
+                    try {
+                        // Sovrascrive il file scrivendoci il nulla ("")
+                        PrintWriter writer = new PrintWriter("db.txt");
+                        writer.print(""); 
+                        writer.close();
+                        
+                        String response = "Cassa azzerata con successo!";
+                        t.sendResponseHeaders(200, response.getBytes().length);
+                        OutputStream os = t.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        String error = "Errore durante lo svuotamento";
+                        t.sendResponseHeaders(500, error.getBytes().length);
+                        OutputStream os = t.getResponseBody();
+                        os.write(error.getBytes());
+                        os.close();
+                    }
+                }
+            }
+        });
+
         server.setExecutor(null);
         server.start();
         System.out.println("Server avviato! Vai su http://localhost:8080");
