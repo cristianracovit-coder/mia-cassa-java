@@ -95,6 +95,10 @@
         .btn-green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3); }
         .btn-gray { background: #95a5a6; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3); margin-top: 15px; }
         .btn-gray:hover { background: #7f8c8d; }
+        
+        /* Pulsante Rosso (Pericoloso) */
+        .btn-red { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); margin-top: 30px; }
+        .btn-red:hover { box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4); }
 
         /* Messaggi */
         #messaggio, #loginMsg { margin-top: 15px; font-weight: 600; min-height: 20px; font-size: 16px; }
@@ -106,7 +110,7 @@
            ========================================================= */
         #dashboardSection {
             width: 100%;
-            max-width: 1200px; /* Allargato per dare più spazio al grafico */
+            max-width: 1200px; 
             animation: fadeIn 0.5s ease;
         }
 
@@ -123,13 +127,11 @@
         
         .dashboard-grid {
             display: grid;
-            /* Tabella a sinistra (1 parte), Grafico a destra (2.5 parti) -> Grafico MOLTO più grande */
             grid-template-columns: 1fr 2.5fr; 
             gap: 40px;
             align-items: start;
         }
 
-        /* Responsive: su cellulare impila tutto in una colonna */
         @media (max-width: 900px) {
             .dashboard-grid { grid-template-columns: 1fr; }
             .dashboard-header { justify-content: center; text-align: center; }
@@ -143,7 +145,6 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
 
-        /* Tabella */
         .table-container { border-radius: 10px; overflow: hidden; border: 1px solid #eef2f5; }
         table { width: 100%; border-collapse: collapse; background: #fff; text-align: left; }
         th { background-color: #f8f9fa; color: #2c3e50; padding: 15px; font-weight: 700; border-bottom: 2px solid #eef2f5; }
@@ -151,7 +152,6 @@
         tr:last-child td { border-bottom: none; }
         tr:nth-child(even) { background-color: #fdfdfd; }
 
-        /* Totali */
         .stats-box { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: left; border: 1px solid #eef2f5; }
         .stat-row { display: flex; justify-content: space-between; padding: 8px 0; }
         .stat-row strong { color: #2c3e50; font-size: 18px; }
@@ -166,11 +166,18 @@
             align-items: center;
         }
 
-        /* Grafico Ingrandito */
         #piechart_3d {
             width: 100%;
-            height: 550px; /* Aumentata l'altezza */
-            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); /* Ombra più marcata per l'effetto 3D */
+            height: 550px; 
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); 
+        }
+
+        /* Contenitore Pulsante Cancella Tutto */
+        .danger-zone {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed #bdc3c7;
+            text-align: center;
         }
 
         @keyframes fadeIn {
@@ -246,10 +253,13 @@
             </div>
 
         </div>
+
+        <div class="danger-zone">
+            <button class="btn-red" style="max-width: 300px;" onclick="svuotaDatabase()">🗑️ Svuota Tutta la Cassa</button>
+        </div>
     </div>
 
     <script>
-        // Carica la libreria di Google Charts in background
         google.charts.load("current", {packages:["corechart"]});
 
         // ==========================================
@@ -259,14 +269,11 @@
         const PASSWORD_CORRETTA = "CCF26!";
         // ==========================================
 
-        // --- NAVIGAZIONE SCHERMATE ---
         function mostraLogin() {
             document.getElementById('appSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'none';
             document.getElementById('btnLogin').style.display = 'none';
-            
             document.getElementById('loginSection').style.display = 'block';
-            
             document.getElementById('userInput').value = '';
             document.getElementById('passInput').value = '';
             document.getElementById('loginMsg').innerText = '';
@@ -275,10 +282,8 @@
         function tornaAllaCassa() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'none';
-            
             document.getElementById('appSection').style.display = 'block';
             document.getElementById('btnLogin').style.display = 'block';
-            
             document.getElementById('messaggio').innerText = ''; 
         }
 
@@ -290,7 +295,6 @@
             if (user === UTENTE_CORRETTO && pass === PASSWORD_CORRETTA) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
-                
                 caricaDatiDashboard();
             } else {
                 msg.innerText = "Credenziali errate. Riprova.";
@@ -298,7 +302,6 @@
             }
         }
 
-        // --- SALVATAGGIO DATI (AREA PUBBLICA) ---
         function salvaInDB() {
             let nomeGrezzo = document.getElementById('nomeInput').value.trim();
             const soldiRaw = document.getElementById('soldiInput').value.trim();
@@ -336,17 +339,14 @@
             });
         }
 
-        // --- ELABORAZIONE DATI (AREA RISERVATA) ---
         function caricaDatiDashboard() {
             fetch('/leggi')
             .then(response => response.text())
             .then(data => {
                 const righe = data.trim().split('\n');
-                
                 let totale = 0;
                 let persone = 0;
                 let righeTabellaHtml = "";
-                
                 let datiPerGrafico = [['Nome', 'Contributo']]; 
                 let ciSonoDati = false;
 
@@ -361,7 +361,6 @@
                                 totale += importo;
                                 persone++;
                                 righeTabellaHtml += `<tr><td><strong>${nome}</strong></td><td>${importo.toFixed(2)} €</td></tr>`;
-                                
                                 datiPerGrafico.push([nome, importo]);
                                 ciSonoDati = true;
                             }
@@ -369,7 +368,6 @@
                     });
                 }
 
-                // 1. COMPILA LA TABELLA
                 if (persone === 0) {
                     righeTabellaHtml = "<tr><td colspan='2' style='text-align: center; color: #95a5a6;'>Nessun dato presente</td></tr>";
                 }
@@ -378,20 +376,15 @@
                 document.getElementById('valTotale').innerText = totale.toFixed(2) + " €";
                 document.getElementById('valMedia').innerText = media.toFixed(2) + " €";
 
-                // 2. DISEGNA IL GRAFICO INGRANDITO
                 if (ciSonoDati) {
                     var dataTable = google.visualization.arrayToDataTable(datiPerGrafico);
                     var options = {
                         is3D: true,
                         backgroundColor: 'transparent', 
-                        legend: { 
-                            position: 'right', 
-                            textStyle: { color: '#333', fontSize: 16 } // Legenda più grande
-                        },
-                        chartArea: { width: '95%', height: '95%' }, // Occupa quasi tutto lo spazio disponibile
+                        legend: { position: 'right', textStyle: { color: '#333', fontSize: 16 } },
+                        chartArea: { width: '95%', height: '95%' }, 
                         pieSliceText: 'value' 
                     };
-
                     var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
                     chart.draw(dataTable, options);
                 } else {
@@ -405,6 +398,23 @@
             const div = document.getElementById('messaggio');
             div.innerText = testo;
             div.className = isErrore ? "errore" : "successo";
+        }
+
+        // --- FUNZIONE PER SVUOTARE IL DATABASE ---
+        function svuotaDatabase() {
+            const conferma = confirm("⚠️ ATTENZIONE! ⚠️\n\nSei sicuro di voler cancellare TUTTI i dati della cassa?\nQuesta operazione è irreversibile.");
+            
+            if (conferma) {
+                // Manda una richiesta al server per svuotare il file
+                fetch('/svuota', { method: 'POST' })
+                .then(response => {
+                    alert("Cassa svuotata con successo!");
+                    caricaDatiDashboard(); // Ricarica la dashboard vuota
+                })
+                .catch(error => {
+                    alert("Errore di comunicazione col server durante la cancellazione.");
+                });
+            }
         }
     </script>
 </body>
